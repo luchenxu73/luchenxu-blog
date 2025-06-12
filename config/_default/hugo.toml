@@ -4,11 +4,8 @@
 # -------------------------------------------------------------------------------------
 
 title = "Hugo FixIt Blog"
-baseURL = "https://hugo-fixit.github.io/hugo-fixit-starter1/"
-theme = [
-  "FixIt",
-  "shortcode-docs-bookmark"
-]
+baseURL = "https://luchenxu73.github.io/luchenxu-blog/"
+theme = ["FixIt", "shortcode-docs-bookmark"]
 defaultContentLanguage = "en"
 languageCode = "en"
 hasCJKLanguage = true
