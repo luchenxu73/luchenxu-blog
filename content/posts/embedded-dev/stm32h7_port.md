@@ -83,7 +83,7 @@ MEMORY
 
 接下来我们看data段：
 
-```c
+```linker-script
 /* used by the startup to initialize data */
 _sidata = LOADADDR(.data);
 
@@ -133,7 +133,7 @@ LoopCopyDataInit:
 
 接下来我们再看bss段：
 
-```c
+```ld
 . = ALIGN(4);
 .bss :
 {
@@ -151,7 +151,7 @@ LoopCopyDataInit:
 
 bss段是保存了未初始化的变量和初始化值为0的变量。因为这些变量只需简单地在内存里填充为0就行。同样也能在启动文件里发现对这片内存区域的处理：
 
-```arm-asm
+```armasm
 LoopCopyDataInit:
   adds r4, r0, r3
   cmp r4, r1
