@@ -3,7 +3,7 @@
 # See: https://gohugo.io/getting-started/configuration/
 # -------------------------------------------------------------------------------------
 
-title = "Hugo FixIt Blog"
+title = "LuChenxu Blog"
 baseURL = "https://luchenxu73.github.io/luchenxu-blog/"
 theme = ["FixIt", "shortcode-docs-bookmark"]
 defaultContentLanguage = "en"
