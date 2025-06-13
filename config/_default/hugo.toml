@@ -4,7 +4,7 @@
 # -------------------------------------------------------------------------------------
 
 title = "LuChenxu Blog"
-baseURL = "/"
+baseURL = "https://luchenxu.com"
 theme = ["FixIt", "shortcode-docs-bookmark"]
 defaultContentLanguage = "en"
 languageCode = "en"
