@@ -7,3 +7,5 @@ resources/
 _vendor
 jsconfig.json
 assets/jsconfig.json
+
+content/.obsidian
