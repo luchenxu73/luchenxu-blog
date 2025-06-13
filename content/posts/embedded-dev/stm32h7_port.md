@@ -83,7 +83,7 @@ MEMORY
 
 接下来我们看data段：
 
-```linker-script
+```c
 /* used by the startup to initialize data */
 _sidata = LOADADDR(.data);
 
@@ -133,7 +133,7 @@ LoopCopyDataInit:
 
 接下来我们再看bss段：
 
-```linker-script
+```c
 . = ALIGN(4);
 .bss :
 {
