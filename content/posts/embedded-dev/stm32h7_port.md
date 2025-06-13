@@ -4,7 +4,7 @@ description: "STM32H7B0开发描述"
 keywords: "stm32h7,openocd,gcc,链接文件"
 
 date: 2024-08-12T14:41:50+08:00
-lastmod: 2024-08-12T14:41:50+08:00
+lastmod: 2025-06-12T14:41:50+08:00
 
 categories:
   - 嵌入式开发
@@ -133,7 +133,7 @@ LoopCopyDataInit:
 
 接下来我们再看bss段：
 
-```ld
+```linker-script
 . = ALIGN(4);
 .bss :
 {
