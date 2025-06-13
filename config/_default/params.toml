@@ -8,7 +8,7 @@ version = "0.3.X" # e.g. "0.2.X", "0.2.15", "v0.2.15" etc.
 # site description
 description = "This is the blog site of Chenxu Lu"
 # site keywords
-keywords = ["Hugo", "FixIt"]
+keywords = ["Embedded Develop", "Programming Skills"]
 # site default theme ["light", "dark", "auto"]
 defaultTheme = "auto"
 # which hash function used for SRI, when empty, no SRI is used
@@ -237,7 +237,7 @@ disableThemeInject = false
   [home.profile]
     enable = true
     # Gravatar Email for preferred avatar in home page
-    gravatarEmail = "xx@xx.com"
+    gravatarEmail = "lcxemail73@gmail.com"
     # URL of avatar shown in home page
     avatarURL = ""
     # FixIt 0.2.17 | NEW identifier of avatar menu link
@@ -245,7 +245,7 @@ disableThemeInject = false
     # title shown in home page (HTML format is supported)
     title = ""
     # subtitle shown in home page (HTML format is supported)
-    subtitle = "This is my new Hugo FixIt site"
+    subtitle = "白天写程序，夜里写博客。写代码，也写光。"
     # whether to use typeit animation for subtitle
     typeit = true
     # whether to show social links
@@ -260,7 +260,7 @@ disableThemeInject = false
 
 # FixIt 0.2.16 | CHANGED Social config about the author
 [social]
-  GitHub = ""
+  GitHub = "https://github.com/luchenxu73"
   Linkedin = ""
   Twitter = ""
   Instagram = ""
@@ -346,8 +346,8 @@ disableThemeInject = false
   TikTok = ""
   Credly = ""
   Phone = ""
-  Email = ""
-  RSS = true
+  Email = "lcxemail73@gmail.com"
+  RSS = false
   # custom social links like the following
   # [social.twitter]
   #   id = "lruihao"
@@ -491,7 +491,7 @@ disableThemeInject = false
 # FixIt 0.2.14 | NEW GitHub banner in the top-right or top-left corner
 [githubCorner]
   enable = false
-  permalink = "https://github.com/hugo-fixit/FixIt"
+  permalink = "https://github.com/luchenxu73/luchenxu-blog"
   title = "View source on GitHub"
   position = "right" # ["left", "right"]
 
@@ -684,7 +684,7 @@ disableThemeInject = false
     # whether to show the copy button of the code wrapper
     copy = true
     # FixIt 0.2.13 | NEW whether to show the edit button of the code wrapper
-    edit = true
+    edit = false
     # the maximum number of lines of displayed code by default
     maxShownLines = 10
   # Mapbox GL JS config (https://docs.mapbox.com/mapbox-gl-js)
@@ -722,7 +722,7 @@ disableThemeInject = false
     # FixIt 0.2.18 | NEW display mode of QR code images, optional values: ["static", "fixed"], default: `static`
     mode = "static"
     [page.reward.ways]
-      # wechatpay = "/images/wechatpay.png"
+      # wechatpay = "https://r2.luchenxu.com/images.jpg"
       # alipay = "/images/alipay.png"
       # paypal = "/images/paypal.png"
       # bitcoin = "/images/bitcoin.png"
