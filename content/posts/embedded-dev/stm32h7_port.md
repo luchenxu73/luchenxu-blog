@@ -202,14 +202,66 @@ ld文件的简单剖析到此为止，接下来我们来实现一些典型的应
   
 总结下来，最典型的应用场景和需求就是，如何把一个变量或者数组在编译期放置到指定的RAM区域中。具体地，可以简单地分为以下两个步骤：
 
-1. 在 `ld` 文件中添加对应的内存区域。
+1. 在 `ld` 文件中添加对应的内存区域。ld 文件的修改可以照猫画虎地添加一个段。例如，我为AXI_SRAM创建了一个段：
+```c
+MEMORY  
+{  
+	DTCMRAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 128K
+	/* 注意一定要有这块内存 */
+	RAM_D1 (xrw)      : ORIGIN = 0x24000000, LENGTH = 512K
+	RAM_D2 (xrw)      : ORIGIN = 0x30000000, LENGTH = 288K  
+	RAM_D3 (xrw)      : ORIGIN = 0x38000000, LENGTH = 64K  
+	ITCMRAM (xrw)      : ORIGIN = 0x00000000, LENGTH = 64K  
+	SDRAM (xrw)      : ORIGIN = 0xC0000000, LENGTH = 16M  
+	FLASH (rx)      : ORIGIN = 0x90000000, LENGTH = 32M  
+}
 
-ld 文件的修改可以照猫画虎
+SECTIONS  
+{
+	/* The startup code goes first into FLASH */  
+	.isr_vector :  
+	{  
+	  . = ALIGN(4);  
+	  KEEP(*(.isr_vector)) /* Startup code */  
+	  . = ALIGN(4);  
+	} >FLASH
+	
+	/* 添加RAM_D1域的SRAM */
+	.RAM_D1(NOLOAD) :  
+	{  
+	  . = ALIGN(4);  
+	  *(.RAM_D1) 
+	  *(.RAM_D1*)        
+	  . = ALIGN(4);  
+	} >RAM_D1
 
-2. 为程序中的变量添加对应的修饰，告知编译器将变量分配到指定位置。
+	/* 下省略 */
+	/* ...... */
+}
+```
+
+2. 为程序中的变量添加对应的修饰，告知编译器将变量分配到指定位置。与ac6编译器不同，GNU工具链下应当使用`__attribute__((__section__(x)))`语法：
+```c
+// 将 buf 放入 RAM_D1 中，注意不要忘记点号
+__attribute__((__section__(".RAM_D1"))) uint8_t buf[1024];
+```
+当然，这么写比较繁琐，在`cdefs.h`中有`__section(x)`宏，这是一个依赖GCC编译器的拓展：
+```c
+
+// cdefs.h
+#define __section(x)   __attribute__((__section__(x)))
+
+// main.c
+__section(".RAM_D1") uint8_t buf[1024];
+```
+然后，你只要使用到了这个变量，那么编译器就会将`buf`变量放置到`RAM_D1`中：
+```c
+// 使用该变量
+buf[0] = 1;
+```
 
 > [!NOTE]
-> 非默认区域的变量不应当设置非0初始值，如 `int a = 1;`。上述代码在程序运行时变量`a`的值依旧会被初始化为`0`，而非`1`。因为`a`的期望值`1`其实是保存在flash中，然后在程序启动时将`1`从flash拷贝到RAM中，这一过程可以在启动文件`startup_stm32h7b0xx.s`中的`LoopCopyDataInit`这一函数中。因此，如果不添加额外的拷贝过程，你在非默认内存区域给定的初始值都是无法正确在程序运行时初始化。
+> 非默认内存区域的变量不应当设置非0初始值，如 `int a = 1;`。上述代码在程序运行时变量`a`的值依旧会被初始化为`0`，而非`1`。因为`a`的期望值`1`其实是保存在flash中，然后在程序启动时将`1`从flash拷贝到RAM中，这一过程可以在启动文件`startup_stm32h7b0xx.s`中的`LoopCopyDataInit`这一函数中。因此，如果不添加额外的拷贝过程，你在非默认内存区域给定的初始值都是无法正确在程序运行时初始化。
 
 
 ## 如何将代码放入 ITCM
