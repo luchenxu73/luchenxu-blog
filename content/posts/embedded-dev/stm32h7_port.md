@@ -247,7 +247,6 @@ __attribute__((__section__(".RAM_D1"))) uint8_t buf[1024];
 ```
 当然，这么写比较繁琐，在`cdefs.h`中有`__section(x)`宏，这是一个依赖GCC编译器的拓展：
 ```c
-
 // cdefs.h
 #define __section(x)   __attribute__((__section__(x)))
 
@@ -266,8 +265,79 @@ buf[0] = 1;
 
 ## 如何将代码放入 ITCM
 
-从上面map文件的分析里看到，我们的函数都会编译成text前缀的玩意儿。例如`HAL_Init`函数，在map文件里，可以看到它变成了`.text.HAL_Init`。
+有时候我们会选择将部分代码放入RAM中以提高性能。所谓将代码放到RAM中，通常可以理解为**将某些函数放入RAM中**。从上面map文件的分析里看到，我们的函数都会编译成text前缀的玩意儿。例如`HAL_Init`函数，在map文件里，可以看到它变成了`.text.HAL_Init`。也就是，我们的目标就是将这个名字的函数放到指定的RAM中。在stm32h7系列中，有一块ITCM正适合放置指令，因此本节将介绍如何将代码放到ITCM中。
 
+从本质上来说，这跟将变量放到指定的区域方法一致，但是需要多加一个步骤，即修改启动文件。关键的操作如下：
+1. 在`ld`文件中添加对应的段和对应的变量。
+2. 修改启动文件，在启动时将代码从`FLASH`拷贝到`ITCM`中。
+
+首先，我们观察ld文件的`data`段附近的内容，如下：
+```c
+/* used by the startup to initialize data */  
+_sidata = LOADADDR(.data);  
+  
+/* Initialized data sections goes into RAM, load LMA copy after code */  
+.data :  
+{  
+  . = ALIGN(4);  
+  _sdata = .;        /* create a global symbol at data start */  
+  *(.data)           /* .data sections */  
+  *(.data*)          /* .data* sections */  
+  . = ALIGN(4);  
+  _edata = .;        /* define a global symbol at data end */  
+} >DTCMRAM AT> FLASH
+```
+需要注意，里面有3个变量：`_sidata`，`_sdata`，`_edata`。这三个变量在启动文件中有用到：
+```armasm
+/* Copy the data segment initializers from flash to SRAM */  
+  ldr r0, =_sdata  
+  ldr r1, =_edata  
+  ldr r2, =_sidata  
+  movs r3, #0  
+  b LoopCopyDataInit /* 跳转到 LoopCopyDataInit  */
+  
+CopyDataInit:  
+  ldr r4, [r2, r3] /* 将r2+r3地址的变量加载到r4 */
+  str r4, [r0, r3] /* 将r4中的值写入到地址r0+r3 */ 
+  adds r3, r3, #4  /* r3 自增 4 */
+  
+LoopCopyDataInit:  
+  adds r4, r0, r3  /* r4 = r0+r3  */
+  cmp r4, r1  /* r4-r1，并设置flag */
+  bcc CopyDataInit /* Carry flag 为 0 时跳转，也就是 r4<r1 */
+```
+它的作用是将flash中的值拷贝到data段对应的起止区间。其等价的c语言代码如下：
+```c
+extern uint32_t _sdata;   // SRAM中data段起始地址
+extern uint32_t _edata;   // SRAM中data段结束地址
+extern uint32_t _sidata;  // Flash中data段初始值地址
+
+void CopyDataInit(void) {
+    uint32_t* dest = &_sdata;
+    uint32_t* end  = &_edata;
+    uint32_t* src  = &_sidata;
+
+    while (dest < end) {
+        *dest++ = *src++;
+    }
+}
+```
+那么，如果我们想将代码放到ITCM中，可以这么配置：
+1. 类似`RAM_D1`的操作，在ld文件中**添加ITCM段**，并参考`data`段创建一些变量:
+```c
+.ITCM :  
+{  
+	. = ALIGN(4);  
+	__itcm_start = .;  
+	*(.ITCM)  
+	*(.ITCM*)  
+	. = ALIGN(4);  
+	  __itcm_end = .;  
+} > ITCMRAM AT>FLASH  
+__itcm_rom_start = LOADADDR(.ITCM);  
+__itcm_size = SIZEOF(.ITCM);
+```
+2. 修改汇编启动文件，添加拷贝ITCM的操作。
 ## 如何获取空闲内存的位置
 
 
